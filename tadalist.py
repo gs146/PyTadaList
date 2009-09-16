@@ -17,7 +17,7 @@ class TadaAPI(object):
 		api = TadaAPI('ghansard')
 		lists = api.lists"""
 	def __init__(self, username):
-		super(TadaMyLists, self).__init__()
+		super(TadaAPI, self).__init__()
 		self.username = username
 		self.lists = self._fetchLists()
 		
@@ -46,10 +46,14 @@ class TadaItem(object):
 		super(TadaItem, self).__init__()
 		self.content = content
 		self.id = iid
+		self._list = list
 	
 	def __str__(self):
 		return self.content
-		
+	
+	def delete(self):
+		self.content = ''
+		self._list._update()
 
 class TadaList(object):
 	"""TadaList represents a list of items.  The items are fetched on an as-need basis.  TadaLists are rather simple.
@@ -63,6 +67,7 @@ class TadaList(object):
 	def __init__(self, href, title, api):
 		super(TadaList, self).__init__()
 		self.title = title
+		self.description = ''
 		self._href = href
 		self._api = api
 		self._items = None
@@ -89,9 +94,22 @@ class TadaList(object):
 		lis = soup.findAll('li')
 		items = []
 		for li in lis: 
-			items.append(TadaItem(li.form.contents[-1].strip(), li['id'], self))
+			items.append(TadaItem(li.form.contents[-1].strip(), li['id'][5:], self))
 		self.items = items
 		return self.items
+	
+	def _update(self):
+		url = self._url()
+		tmp = {"_method":"put", "list[title]": self.title, 'list[description]': self.description}
+		for i in self.items:
+			tmp['item['+i.id+'][content]'] = i.content
+		payload = urlencode(tmp)
+		print url + "\n" + payload
+		system("curl -d \"%s\" %s" % (payload, url))
+		print
+		print
+		print "curl -d \"%s\" %s" % (payload, url)
+		
 		
 	def addItem(self, content):
 		"""Add an item to the TadaList.  The content of the item should be a string.  Note that the TadaList will
@@ -108,8 +126,9 @@ class TadaList(object):
 def main():
 	t = TadaAPI("ghansard")
 	tips = t.lists[0]
-	tips.addItem("This is a test")
-	tips.items
+	print tips.title
+#	tips.addItem("This is a test")
+	tips.items[0].delete()
 	
 	
 if __name__ == '__main__':
