@@ -1,3 +1,4 @@
+# FAQs:
 # What is PyTadaList?
 
 [Ta-da List](http://tadalist.com) has no API.  It's exceptionally useful as an easy-to-share todo list manager.  However, it's not particularly extensible since there's no official API.  That said, there are ways to work with a website without an API.  Unfortunately, this often means trying to figure out how the requests work internally and scraping web pages.  PyTadaList takes that approach in order to provide some means of accessing and updating Ta-da lists.
